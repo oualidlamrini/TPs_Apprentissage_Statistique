@@ -1,17 +1,16 @@
 #%%
+###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###
+### Imortation des libraries ###
+###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import rc
-#%%
 from sklearn import tree, datasets
 from tp_arbres_source import (rand_gauss, rand_bi_gauss, rand_tri_gauss,
                               rand_checkers, rand_clown,
                               plot_2d, frontiere)
-
-
-#%%
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Computer Modern Roman']})
 params = {'axes.labelsize': 6,
           'font.size': 12,
@@ -25,17 +24,15 @@ sns.set_palette("colorblind")
 sns.set_style("white")
 _ = sns.axes_style()
 #%%
-############################################################################
-# Data Generation: example
-############################################################################
-
+###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###
+### Data Generation: example ###
+###%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%###
 np.random.seed(1)
 
 n = 100
 mu = [1., 1.]
 sigma = [1., 1.]
 rand_gauss(n, mu, sigma)
-
 
 n1 = 20
 n2 = 20
@@ -63,17 +60,16 @@ sigma2 = 5.
 data3 = rand_clown(n1, n2, sigma1, sigma2)
 
 
-n1 = 114  # XXX : change
+n1 = 114 
 n2 = 114
 n3 = 114
 n4 = 114
 sigma = 0.1
 data4 = rand_checkers(n1, n2, n3, n4, sigma)
 
-#%%
-############################################################################
-# Displaying labeled data
-############################################################################
+###%%%%%%%%%%%%%%%%%%%%%%%%%###
+### Displaying labeled data ###
+###%%%%%%%%%%%%%%%%%%%%%%%%%###
 #%%
 plt.close("all")
 plt.ion()
@@ -81,27 +77,24 @@ plt.figure(figsize=(15, 5))
 plt.subplot(141)
 plt.title('First data set')
 plot_2d(data1[:, :2], data1[:, 2], w=None)
-#%%
 plt.subplot(142)
 plt.title('Second data set')
 plot_2d(data2[:, :2], data2[:, 2], w=None)
-#%%
 plt.subplot(143)
 plt.title('Third data set')
 plot_2d(data3[:, :2], data3[:, 2], w=None)
-
 plt.subplot(144)
 plt.title('Fourth data set')
 plot_2d(data4[:, :2], data4[:, 2], w=None)
 
 #%%
-############################################
-# ARBRES
-############################################
+###%%%%%%%%%%%%%%%%%%%###
+###        Arbres     ###
+###%%%%%%%%%%%%%%%%%%%###
 
-# SCORE = 1-ERROR IN [0,1] less error we make more score  
+###Remarque%%###: SCORE = 1-ERROR IN [0,1] less error we make more score%%%### 
+###Remarque%%###: attension to RMSE error it coud be not in [0,1]
 
-# attensio to RMSE error it coud be not in [0,1]
 # Q2. Créer deux objets 'arbre de décision' en spécifiant le critère de
 # classification comme l'indice de gini ou l'entropie, avec la
 # fonction 'DecisionTreeClassifier' du module 'tree'.
