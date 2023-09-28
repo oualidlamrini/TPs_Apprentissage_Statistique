@@ -306,5 +306,8 @@ plt.ylabel("Accuracy")
 plt.title("Learning curve for best decision tree")
 ```
 
+On remarque que la courbe d'apprentissage sur les données d'apprentissage est quasiment constantetg vaut $1$.Pourtant ce lui réalisé sur le sdonnes de test croit avec le nombre d'individus dans l'échantillon pour s'approcher d'un bon score, ce qui ssupprime l'hyppothése de sur_apprentissage de notre modéle. 
+
+
 # Conclusion
 En somme,Ce TP a été amblement informatif et constructif pour qu'on a compris l'algorithme **CART** et se servir des differentes fonctions et modules de la librairie `slearn` ,ainsi que la détermination de la profondeur maximale de l'arbre de décision via la validation croisée k_fold.

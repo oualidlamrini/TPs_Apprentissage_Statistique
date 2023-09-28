@@ -14,6 +14,6 @@ Ce dossier est didié que pour le TP2 sur les arbres de décision,il comporte :
 
 ## Tourner les codes 
 
-Il suffit d'avoir une version de Python3 et avoir installé les librarires : **numpy,matplotlib pylot,sklearn,seborne,os**.
+Il suffit d'avoir une version de Python3 et avoir installé les librarires : **numpy,matplotlib pylot,sklearn,seborne, et os**.
 
 
