@@ -304,8 +304,8 @@ error = np.zeros(dmax)
 
 # Boucle de calcul de l'erreur
 for i in range(dmax):
-    dt_entropy = tree.DecisionTreeClassifier(criterion='entropy', max_depth=i+1)
-    error[i] = np.mean(1-cross_val_score(dt_entropy, X, Y, cv=5))
+    dt_gini = tree.DecisionTreeClassifier(criterion='gini', max_depth=i+1)
+    error[i] = np.mean(1-cross_val_score(dt_gini, X, Y, cv=5))
 
 # Affichage de la courbe
 plt.figure(figsize=(6,3.2))
@@ -315,20 +315,20 @@ print("Best depth: ", best_depth)
 
 #%%
 # Exportation de meilleur arbre
-dt = tree.DecisionTreeClassifier(criterion='gini', max_depth=8)
-dt.fit(X_train,Y_train)
-dataa= tree.export_graphviz(dt)
-graph = graphviz.Source(dataa)
+d_tree = tree.DecisionTreeClassifier(criterion='gini', max_depth=9)
+d_tree.fit(X_train,Y_train)
+data_tree= tree.export_graphviz(d_tree)
+graph = graphviz.Source(data_tree)
 graph.render('./graphs/decision_tree', format='pdf')
 
 #%%
 from sklearn.model_selection import learning_curve
 
-# Calcul des courbes d'apprentissage
-dt = tree.DecisionTreeClassifier(criterion='entropy', max_depth=8)
+# Les courbes d'apprentissage
+dt = tree.DecisionTreeClassifier(criterion='gini', max_depth=9)
 n_samples, train_curve, test_curve = learning_curve(dt, X, Y,train_sizes=np.linspace(0.1, 1, 8))
 
-# Mise en place de l'affichage
+# l'affichage
 plt.figure(figsize=(6,3.2))
 plt.grid()
 

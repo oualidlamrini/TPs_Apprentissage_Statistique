@@ -19,7 +19,7 @@ La tentative consiste à prédire une nouvelle réponse $y_{i}^{*}$ en se donnan
 Puisque que $y$ est numérique,on propose alors la varinace $V$ (disperssion) comme critére d'homogénité.
 En effet, à chaque noed $N_k$ de l'arbre **CART** on choisira un seuil $s$ et la variable $x^j$ qui donnera deux sous groupes $N^{k}_{g}$ de gauche et $N^{k}_{d}$ de droite dont l'inter_homogénité (au sein du méme groupe) est maximale et l'intra_homogénité (entre les 2 groupes) est  minimale.
 Autrement dit,on cherche à resoudre le probléme d'optimisation suivant:
-$$Max{V(N_k))-(V(N^{k}_{g})+V(N^{k}_{g}))}_{j}=Max{Cov(N^{k}_{g},N^{k}_{d})}_{j}$$
+
   
 ## Simulation, les critéres **Gni** et **Entropy**
 

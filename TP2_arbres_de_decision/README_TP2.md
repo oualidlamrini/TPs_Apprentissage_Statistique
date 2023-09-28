@@ -3,7 +3,7 @@
 ## But
 
 Le but du présent TP est la mis en ouvre de l'algorithme **CART** par la construction des arbres de décision par deux critéres differents (Gini et Entropy) ainsi que la sélection l'arbre optimale à l'aide du package `sklearn`.
-## Commosition
+## Commositionws
 
 Ce dossier est didié que pour le TP2 sur les arbres de décision,il comporte :
 - Le fichier `TP2_Decision_tree.qmd`
