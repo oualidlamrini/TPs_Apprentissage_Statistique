@@ -1,0 +1,310 @@
+---
+title: "TP2 - Arbres de décision"
+format:
+  pdf:
+    documentclass: scrartcl
+    papersize: letter
+    author: LAMRINI Oualid
+    date: 2023/09/28
+    number-sections: true
+    colorlinks: true
+    fig-align: center
+---
+# Classification avec les arbres
+Le but du présent TP est la mis en ouvre de l'algorithme **CART** par la construction des arbres de décision par deux critéres differents (Gini et Entropy) ainsi que la sélection l'arbre optimale à l'aide du package `sklearn`. 
+
+Pour se faire, on se donne un jeu de donées $X$ (variables exlicatives) et $y$ (variable réponse).
+## Tentative de regression avec les arbres
+La tentative consiste à prédire une nouvelle réponse $y_{i}^{*}$ en se donnant un $y$ numérique tout en adoptant l'algorithme **CART**.
+Puisque que $y$ est numérique,on propose alors la varinace $V$ (disperssion) comme critére d'homogénité.
+En effet, à chaque noed $N_k$ de l'arbre **CART** on choisira un seuil $s$ et la variable $x^j$ qui donnera deux sous groupes $N^{k}_{g}$ de gauche et $N^{k}_{d}$ de droite dont l'inter_homogénité (au sein du méme groupe) est maximale et l'intra_homogénité (entre les 2 groupes) est  minimale.
+Autrement dit,on cherche à resoudre le probléme d'optimisation suivant:
+$$Max{V(N_k))-(V(N^{k}_{g})+V(N^{k}_{g}))}_{j}=Max{Cov(N^{k}_{g},N^{k}_{d})}_{j}$$
+  
+## Simulation, les critéres **Gni** et **Entropy**
+
+- A l'aide de la fonction `rand_checkers` du module `tp_arbres_source.py` on construit un échantillon de taille $n=456$,et à l'aide des differentes fonctions du module `tree` du package `sklearn`,on construit les deux classifieurs `dt_gini`  avec le critére de **Gini** et `dt_entropy` dont  l'entropie est le critére de classification.
+Le code suivant s'occupe de la tache:
+
+```{python}
+#|echo:false
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib import rc
+
+from sklearn.model_selection import cross_val_score, learning_curve
+from sklearn import tree, datasets, model_selection
+from tp_arbres_source import (rand_gauss, rand_bi_gauss, rand_tri_gauss,
+                              rand_checkers, rand_clown,
+                              plot_2d, frontiere)
+
+
+rc('font', **{'family': 'sans-serif', 'sans-serif': ['Computer Modern Roman']})
+params = {'axes.labelsize': 6,
+          'font.size': 12,
+          'legend.fontsize': 12,
+          'text.usetex': False,
+          'figure.figsize': (10, 12)}
+plt.rcParams.update(params)
+
+sns.set_context("poster")
+sns.set_palette("colorblind")
+sns.set_style("white")
+_ = sns.axes_style()
+``` 
+
+```{python}
+# Instentiation des classes 
+dt_entropy = tree.DecisionTreeClassifier(criterion='entropy')
+dt_gini = tree.DecisionTreeClassifier(criterion='gini')
+
+# Simulation 
+n = 456
+data = rand_checkers(n1=n//4, n2=n//4, n3=n//4, n4=n//4)
+n_samples = len(data)
+X = data[:,:2]
+Y = data[:,2]
+# Entraînement 
+dt_gini.fit(X, Y)
+dt_entropy.fit(X, Y)
+
+# Score 
+print("Gini criterion")
+print(dt_gini.score(X, Y))
+
+print("Entropy criterion")
+print(dt_entropy.score(X, Y))
+```
+
+- Le graphe ci_dessous est l'allure des erreurs en fonction de la profondeur maximale `max_depth` ( voir le code génerateur dans le fichier `TP2_Decision_tree.qmd` .
+**Remarque**: score = 1- erreur. 
+
+```{python}
+#| echo: false
+#| fig-cap: "L'erreur en fonction de la profondeur maximale de l'arbre"
+
+# Initialisation 
+dmax = 12        
+scores_entropy = np.zeros(dmax)
+scores_gini = np.zeros(dmax)
+for i in range(dmax):
+
+    dt_entropy = tree.DecisionTreeClassifier(criterion='entropy', 
+                                             max_depth=i+1)
+    dt_entropy.fit(X,Y)
+    scores_entropy[i] = dt_entropy.score(X, Y)
+
+    dt_gini = tree.DecisionTreeClassifier(criterion='gini', 
+                                          max_depth=i+1)
+    dt_gini.fit(X,Y)
+    scores_gini[i] = dt_gini.score(X,Y)
+
+# Affichage des courbes d'erreur
+plt.figure(figsize=(6,3.2))
+plt.plot(1-scores_entropy, label="entropy")
+plt.plot(1-scores_gini, label="gini")
+plt.legend()
+plt.xlabel('Max depth', fontsize=14)
+plt.ylabel("Error pourcentage", fontsize=14)
+plt.title("Lerning error ")
+plt.draw()
+```
+
+On observe un pourcentage d'erreur infiniment petit (voir nul) pour les profondeur plus grandes que 11 et ce pour les deux critéres.
+En effet, les deux courbes sont prochent l'une de l'autre et qui tendent vers 0 avec une vitesse acceptable en montrant que le modéle apprend.
+
+- On affichera ci_dessous la classification obtenu avec la profondeur qui maximise le score du classefieur.
+
+```{python}
+#| fig-cap: "Frontières pour la meilleur profondeur "
+dt_entropy.max_depth = np.argmin(1-scores_entropy)+1
+plt.figure(figsize=(6,3.2))
+frontiere(lambda x: dt_gini.predict(x.reshape((1, -1))), X, Y, step=100)
+plt.draw()
+print("Best scores with entropy criterion: ", dt_entropy.score(X, Y))
+```
+
+On remarque qu'on abouti à une partition satisfaisante qui isole trés bien les différentes classes.
+
+- Visualisons notre arbre de décision (en l'occurrence pour l'indice de **gini**) à l'aide de la fonction `export_graphviz` du module `tree ` du package `sklearn`.
+
+![Decision tree](./graphviz/dt_entropy.pdf)
+
+- On va créer $n=160=40+40+40+40$ nouvelles données que nous allons utiliser comme données de test. Nous allons calculer la proportion d'erreur faite pour les arbres précédents.
+
+```{python}
+data_test = rand_checkers(n1=40, n2=40, n3=40, n4=40)
+X_test = data_test[:,:2]
+Y_test = np.asarray(data_test[:,-1], dtype=int)
+
+# Initialisation
+dmax = 30                             
+scores_entropy = np.zeros(dmax)
+scores_gini = np.zeros(dmax)
+
+for i in range(dmax):
+    # Entropy Criterion
+    dt_entropy = tree.DecisionTreeClassifier(criterion='entropy', 
+                                             max_depth=i+1)
+    dt_entropy.fit(X,Y)
+    scores_entropy[i] = dt_entropy.score(X_test, Y_test)
+
+    # Gini Criterion
+    dt_gini = tree.DecisionTreeClassifier(criterion='gini', 
+                                          max_depth=i+1)
+    dt_gini.fit(X,Y)
+    scores_gini[i] = dt_gini.score(X_test,Y_test)
+
+# plots
+plt.figure(figsize=(6,3.2))
+plt.plot(1-scores_entropy)
+plt.plot(1-scores_gini)
+plt.legend(['entropy', 'gini'])
+plt.xlabel('Max depth')
+plt.ylabel('Error pourcentage')
+plt.title("Testing error")
+```
+
+On l'occurrence, il y a une chute rapide de l'erreur pour le spetites profondeur,en revanche il s'avére stagnée pour les profondeur au delà de $11$.
+Autrement dit,il est $11$ est un choix optimal pour cette classification.
+
+
+## Explorons le jeu de donnéés **DIGITS**
+
+- Divisons le jeu de données en une dat_set d'apprentissage  X_train,Y_train et une data_set de test Y_test,X_test via les cmmandes python suivantes:
+
+```{python}
+digits = datasets.load_digits()        
+n_samples = len(digits.data)
+X_train, X_test, Y_train, Y_test = model_selection.train_test_split(digits.data,
+                                                                    digits.target, 
+                                                                    test_size=0.8,
+                                                                    random_state=50)
+```
+
+- Tracons les courbes d'erreurs pour les deux critères sur l'échantillon d'apprentissage:
+
+```{python}
+#| echo: FALSE
+#| message: FALSE
+dmax = 20
+scores_entropy = np.zeros(dmax)
+scores_gini = np.zeros(dmax)
+
+for i in range(dmax):
+    dt_entropy = tree.DecisionTreeClassifier(criterion='entropy',
+                                             max_depth=i+1)
+    dt_entropy.fit(X_train, Y_train)
+    scores_entropy[i] = dt_entropy.score(X_train, Y_train)
+
+    dt_gini = tree.DecisionTreeClassifier(criterion='gini', max_depth=i+1)
+    dt_gini.fit(X_train, Y_train)
+    scores_gini[i] = dt_gini.score(X_train, Y_train)
+
+plt.figure(figsize=(8, 4))
+plt.plot(1-scores_entropy, label='entropy')
+plt.plot(1-scores_gini, label='gini')
+plt.xlabel('Max depth')
+plt.ylabel('Error pourcentage')
+plt.legend(["entropy", "gini"])
+plt.title('Lerning error with entropy and gini criterion')
+plt.draw()
+```
+
+On bserve que l'erreur tend vers 0 ce qui est tout a fait normale sur les données d'apprentissage.
+
+- Tracons à présent les courbes d'erreurs pour les deux critères sur l'échantillon du test:
+
+```{python}
+#| echo: FALSE
+#| message: FALSE
+dmax = 20
+scores_entropy = np.zeros(dmax)
+scores_gini = np.zeros(dmax)
+
+for i in range(dmax):
+    dt_entropy = tree.DecisionTreeClassifier(criterion='entropy',
+                                             max_depth=i+1)
+    dt_entropy.fit(X_train, Y_train)
+    scores_entropy[i] = dt_entropy.score(X_train, Y_train)
+
+    dt_gini = tree.DecisionTreeClassifier(criterion='gini', max_depth=i+1)
+    dt_gini.fit(X_train, Y_train)
+    scores_gini[i] = dt_gini.score(X_train, Y_train)
+
+plt.figure(figsize=(8, 4))
+plt.plot(1-scores_entropy, label='entropy')
+plt.plot(1-scores_gini, label='gini')
+plt.xlabel('Max depth')
+plt.ylabel('Error pourcentage')
+plt.legend(["entropy", "gini"])
+plt.title('Testing error with entropy and gini criterion')
+plt.draw()
+```
+
+On retrouve la méme remarque qui consite au fait que l'erreur chute brusquement pour les profondeur petites et fini par se stagner aprés une certaine profondeur dans ce cas c'est autour de $7$.
+
+# Sélection de modéle
+Cette section conciste à trouver la profondeur maximale via la validation croisée.
+## La fonction cross_val_score
+
+On va réaliser une validation croisée K_fold (en l'occurrence K=5) à l'aide de la fonction `cross_val_score`.
+
+```{python}
+dmax = 30
+X = digits.data
+Y = digits.target
+error = np.zeros(dmax)
+
+# Boucle de calcul de l'erreur
+for i in range(dmax):
+    dt_gini = tree.DecisionTreeClassifier(criterion='gini', max_depth=i+1)
+    error[i] = np.mean(1-cross_val_score(dt_gini, X, Y, cv=5))
+
+# Affichage de la courbe
+plt.figure(figsize=(6,3.2))
+plt.plot(error)
+plt.title('Testing error with gini criterion')
+plt.xlabel('Max depth')
+plt.ylabel('Error pourcentage')
+print("Best depth: ", np.argmin(error)+1)
+plt.draw()
+```
+
+On constate une courbe d'erreur qui chute notament pour les profondeur petites et fini par se stagner vers la profondeur $9$ et plus.
+
+L'arbre est de la forme suivant:
+![Decision tree](./graphs/decision_tree.pdf)
+
+- Tracons la courbe d'apprentissage, qui donne une idée sur l'hypothése de sur_apprentissage de notre modéle, pour la profondeur maxmale 9.
+
+```{python}
+from sklearn.model_selection import learning_curve
+
+# Les courbes d'apprentissage
+dt = tree.DecisionTreeClassifier(criterion='gini', max_depth=9)
+n_samples, train_curve, test_curve = learning_curve(dt, X, Y,train_sizes=np.linspace(0.1, 1, 8))
+
+# l'affichage
+plt.figure(figsize=(6,3.2))
+plt.grid()
+
+# colorisation des intervalles de confiance
+plt.fill_between(n_samples, np.mean(train_curve, axis=1) -1.96*np.std(train_curve, axis=1),
+                  np.mean(train_curve, axis=1) + 1.96*np.std(train_curve, axis=1), alpha=0.1)
+plt.fill_between(n_samples, np.mean(test_curve, axis=1) -1.96*np.std(test_curve, axis=1),
+                  np.mean(test_curve, axis=1) + 1.96*np.std(test_curve, axis=1), alpha=0.1)
+
+# Affichage des courbes
+plt.plot(n_samples, np.mean(train_curve, axis=1),"o-", label="train")
+plt.plot(n_samples, np.mean(test_curve, axis=1), "o-", label="test")
+plt.legend(loc="lower right")
+plt.xlabel("Size of sample in the training set")
+plt.ylabel("Accuracy")
+plt.title("Learning curve for best decision tree")
+```
+
+# Conclusion
+En somme,Ce TP a été amblement informatif et constructif pour qu'on a compris l'algorithme **CART** et se servir des differentes fonctions et modules de la librairie `slearn` ,ainsi que la détermination de la profondeur maximale de l'arbre de décision via la validation croisée k_fold.

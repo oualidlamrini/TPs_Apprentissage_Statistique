@@ -18,7 +18,6 @@ import seaborn as sns
 #                Data Generation
 ############################################################################
 
-
 def rand_gauss(n=100, mu=[1, 1], sigma=[0.1, 0.1]):
     """ Sample n points from a Gaussian variable with center mu,
     and std deviation sigma
