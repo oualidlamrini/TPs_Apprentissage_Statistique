@@ -19,7 +19,7 @@ La tentative consiste à prédire une nouvelle réponse $y_{i}^{*}$ en se donnan
 Puisque que $y$ est numérique,on propose alors la varinace $V$ (disperssion) comme critére d'homogénité.
 En effet, à chaque noed $N_k$ de l'arbre **CART** on choisira un seuil $s$ et la variable $x^j$ qui donnera deux sous groupes $N^{k}_{g}$ de gauche et $N^{k}_{d}$ de droite dont l'inter_homogénité (au sein du méme groupe) est maximale et l'intra_homogénité (entre les 2 groupes) est  minimale.
 Autrement dit,on cherche à resoudre le probléme d'optimisation suivant:
-
+$$Max{V(N_k))-(V(N^{k}_{g})+V(N^{k}_{g}))}_{j}=Max{Cov(N^{k}_{g},N^{k}_{d})}_{j}$$
   
 ## Simulation, les critéres **Gni** et **Entropy**
 
@@ -112,7 +112,7 @@ plt.title("Lerning error ")
 plt.draw()
 ```
 
-On observe un pourcentage d'erreur infiniment petit (voir nul) pour les profondeur plus grandes que 11 et ce pour les deux critéres.
+On observe un pourcentage d'erreur infiniment petit (voir nul) pour les profondeurs plus grandes que 11 et ce pour les deux critéres.
 En effet, les deux courbes sont prochent l'une de l'autre et qui tendent vers 0 avec une vitesse acceptable en montrant que le modéle apprend.
 
 - On affichera ci_dessous la classification obtenu avec la profondeur qui maximise le score du classefieur.
@@ -126,13 +126,13 @@ plt.draw()
 print("Best scores with entropy criterion: ", dt_entropy.score(X, Y))
 ```
 
-On remarque qu'on abouti à une partition satisfaisante qui isole trés bien les différentes classes.
+On remarque qu'on a abouti à une partition satisfaisante qui isole trés bien les différentes classes.
 
 - Visualisons notre arbre de décision (en l'occurrence pour l'indice de **gini**) à l'aide de la fonction `export_graphviz` du module `tree ` du package `sklearn`.
 
 ![Decision tree](./graphviz/dt_entropy.pdf)
 
-- On va créer $n=160=40+40+40+40$ nouvelles données que nous allons utiliser comme données de test. Nous allons calculer la proportion d'erreur faite pour les arbres précédents.
+- On va créer $n=160=40+40+40+40$ nouvelles données qu'on va utiliser comme données de test. On va calculer la proportion d'erreur faite pour les arbres précédents.
 
 ```{python}
 data_test = rand_checkers(n1=40, n2=40, n3=40, n4=40)
@@ -167,13 +167,13 @@ plt.ylabel('Error pourcentage')
 plt.title("Testing error")
 ```
 
-On l'occurrence, il y a une chute rapide de l'erreur pour le spetites profondeur,en revanche il s'avére stagnée pour les profondeur au delà de $11$.
-Autrement dit,il est $11$ est un choix optimal pour cette classification.
+On l'occurrence, il y a une chute rapide de l'erreur pour les petites profondeurs,en revanche elle s'avére stagnée pour les profondeur au delà de $11$.
+Autrement dit, $11$ est un choix optimal pour cette classification.
 
 
 ## Explorons le jeu de donnéés **DIGITS**
 
-- Divisons le jeu de données en une dat_set d'apprentissage  X_train,Y_train et une data_set de test Y_test,X_test via les cmmandes python suivantes:
+- Divisons le jeu de données en une data_set d'apprentissage  X_train,Y_train et une data_set de test Y_test,X_test via les cmmandes python suivantes:
 
 ```{python}
 digits = datasets.load_digits()        
@@ -213,7 +213,7 @@ plt.title('Lerning error with entropy and gini criterion')
 plt.draw()
 ```
 
-On bserve que l'erreur tend vers 0 ce qui est tout a fait normale sur les données d'apprentissage.
+On observe que l'erreur tend vers 0 ce qui est tout a fait normale sur les données d'apprentissage.
 
 - Tracons à présent les courbes d'erreurs pour les deux critères sur l'échantillon du test:
 
@@ -244,7 +244,7 @@ plt.title('Testing error with entropy and gini criterion')
 plt.draw()
 ```
 
-On retrouve la méme remarque qui consite au fait que l'erreur chute brusquement pour les profondeur petites et fini par se stagner aprés une certaine profondeur dans ce cas c'est autour de $7$.
+On retrouve la méme remarque qui consite au fait que l'erreur chute brusquement pour les profondeurs petites et fini par se stagner aprés une certaine profondeur dans ce cas c'est autour de $7$.
 
 # Sélection de modéle
 Cette section conciste à trouver la profondeur maximale via la validation croisée.
@@ -273,7 +273,7 @@ print("Best depth: ", np.argmin(error)+1)
 plt.draw()
 ```
 
-On constate une courbe d'erreur qui chute notament pour les profondeur petites et fini par se stagner vers la profondeur $9$ et plus.
+On constate une courbe d'erreur qui chute notament pour les profondeurs petites et fini par se stagner vers la profondeur $9$ et plus.
 
 L'arbre est de la forme suivant:
 ![Decision tree](./graphs/decision_tree.pdf)
@@ -306,7 +306,7 @@ plt.ylabel("Accuracy")
 plt.title("Learning curve for best decision tree")
 ```
 
-On remarque que la courbe d'apprentissage sur les données d'apprentissage est quasiment constantetg vaut $1$.Pourtant ce lui réalisé sur le sdonnes de test croit avec le nombre d'individus dans l'échantillon pour s'approcher d'un bon score, ce qui ssupprime l'hyppothése de sur_apprentissage de notre modéle. 
+On remarque que la courbe d'apprentissage sur les données d'apprentissage est quasiment constantetg vaut $1$.Pourtant celui réalisé sur les données de test croit avec le nombre d'individus dans l'échantillon pour s'approcher d'un bon score, ce qui supprime l'hyppothése de sur_apprentissage de notre modéle. 
 
 
 # Conclusion
